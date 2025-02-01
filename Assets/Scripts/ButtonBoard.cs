@@ -98,6 +98,7 @@ namespace TicTacToe.Board
             _pressCount = 0;
             _remainingX = 5;
             _remainingO = 5;
+            WriteUpdateCounts();
             foreach (var cell in _cells)
             {
                 cell.Text.text = "";
@@ -134,6 +135,11 @@ namespace TicTacToe.Board
             _pressCount++;
 
             print($"X Probability {_remainingX / (float)(_remainingX + _remainingO) * 100}% \nO Probability {_remainingO / (float)(_remainingX + _remainingO) * 100}%");
+            WriteUpdateCounts();
+        }
+
+        void WriteUpdateCounts()
+        {
             var xText = GameObject.Find("Remaining X").GetComponent<TextMeshProUGUI>();
             var oText = GameObject.Find("Remaining O").GetComponent<TextMeshProUGUI>();
 
