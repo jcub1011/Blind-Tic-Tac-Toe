@@ -27,6 +27,11 @@ namespace TicTacToe.Board
 
     public class ButtonBoard : MonoBehaviour
     {
+        [SerializeField]
+        GameObject _winScreen;
+        [SerializeField]
+        GameObject _drawScreen;
+
         readonly List<TextButton> _cells = new();
         readonly Color _xColor = new Color(6f / 255, 114f / 255, 202f / 255);
         readonly Color _oColor = new Color(242f / 255, 84f / 255, 91f / 255);
@@ -58,7 +63,7 @@ namespace TicTacToe.Board
             if (_currentTurn == Player.None) return;
 
             SetCurrentPlayer(_currentTurn == Player.X ? Player.O : Player.X);
-            bool isX = Random.Range(0, _remainingO + _remainingX + 1) <= _remainingX;
+            bool isX = Random.Range(0, _remainingO + _remainingX) < _remainingX;
             UpdateCounts(isX);
             textButton.Text.color = isX ? _xColor : _oColor;
             textButton.Text.text = isX ? "X" : "O";
@@ -69,21 +74,26 @@ namespace TicTacToe.Board
             {
                 print($"X Won");
                 SetCurrentPlayer(Player.None);
+                DisplayWinner(Player.X);
             }
             else if (winner == Player.O)
             {
                 print("O Won");
                 SetCurrentPlayer(Player.None);
+                DisplayWinner(Player.O);
             }
             else if (_pressCount >= 9)
             {
                 print("Draw");
                 SetCurrentPlayer(Player.None);
+                DisplayWinner(Player.None);
             }
         }
 
         public void ResetBoard()
         {
+            _winScreen.SetActive(false);
+            _drawScreen.SetActive(false);
             SetCurrentPlayer(Player.X);
             _pressCount = 0;
             _remainingX = 5;
@@ -92,6 +102,28 @@ namespace TicTacToe.Board
             {
                 cell.Text.text = "";
                 cell.Button.interactable = true;
+            }
+        }
+
+        void DisplayWinner(Player winner)
+        {
+            if (winner == Player.X)
+            {
+                _winScreen.SetActive(true);
+                var playerText = _winScreen.transform.Find("Winner").GetComponent<TextMeshProUGUI>();
+                playerText.text = "X";
+                playerText.color = _xColor;
+            }
+            else if (winner == Player.O)
+            {
+                _winScreen.SetActive(true);
+                var playerText = _winScreen.transform.Find("Winner").GetComponent<TextMeshProUGUI>();
+                playerText.text = "O";
+                playerText.color = _oColor;
+            }
+            else
+            {
+                _drawScreen.SetActive(true);
             }
         }
 
