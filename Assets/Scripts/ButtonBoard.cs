@@ -1,3 +1,4 @@
+using NUnit.Framework;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -30,6 +31,9 @@ namespace TicTacToe.Board
         readonly Color _xColor = new Color(6f / 255, 114f / 255, 202f / 255);
         readonly Color _oColor = new Color(242f / 255, 84f / 255, 91f / 255);
         Player _currentTurn;
+        int _pressCount = 0;
+        int _remainingX = 5;
+        int _remainingO = 5;
 
         private void Awake()
         {
@@ -51,9 +55,11 @@ namespace TicTacToe.Board
         void OnButtonPressed(TextButton textButton)
         {
             print($"Button {textButton.Button.name} pressed.");
+            if (_currentTurn == Player.None) return;
 
             SetCurrentPlayer(_currentTurn == Player.X ? Player.O : Player.X);
-            bool isX = Random.value > 0.5f;
+            bool isX = Random.Range(0, _remainingO + _remainingX + 1) <= _remainingX;
+            UpdateCounts(isX);
             textButton.Text.color = isX ? _xColor : _oColor;
             textButton.Text.text = isX ? "X" : "O";
             textButton.Button.interactable = false;
@@ -62,21 +68,45 @@ namespace TicTacToe.Board
             if (winner == Player.X)
             {
                 print($"X Won");
+                SetCurrentPlayer(Player.None);
             }
             else if (winner == Player.O)
             {
                 print("O Won");
+                SetCurrentPlayer(Player.None);
+            }
+            else if (_pressCount >= 9)
+            {
+                print("Draw");
+                SetCurrentPlayer(Player.None);
             }
         }
 
         public void ResetBoard()
         {
             SetCurrentPlayer(Player.X);
+            _pressCount = 0;
+            _remainingX = 5;
+            _remainingO = 5;
             foreach (var cell in _cells)
             {
                 cell.Text.text = "";
                 cell.Button.interactable = true;
             }
+        }
+
+        void UpdateCounts(bool xJustPlaced)
+        {
+            if (xJustPlaced) _remainingX--;
+            else _remainingO--;
+            _pressCount++;
+
+            print($"X Probability {_remainingX / (float)(_remainingX + _remainingO) * 100}% \nO Probability {_remainingO / (float)(_remainingX + _remainingO) * 100}%");
+            var xText = GameObject.Find("Remaining X").GetComponent<TextMeshProUGUI>();
+            var oText = GameObject.Find("Remaining O").GetComponent<TextMeshProUGUI>();
+
+            xText.text = $"Remaining X: {_remainingX}";
+            oText.text = $"Remaining O: {_remainingO}";
         }
 
         void SetCurrentPlayer(Player player)
