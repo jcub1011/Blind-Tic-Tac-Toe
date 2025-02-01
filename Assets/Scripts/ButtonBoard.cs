@@ -27,6 +27,9 @@ namespace TicTacToe.Board
     public class ButtonBoard : MonoBehaviour
     {
         readonly List<TextButton> _cells = new();
+        readonly Color _xColor = new Color(6f / 255, 114f / 255, 202f / 255);
+        readonly Color _oColor = new Color(242f / 255, 84f / 255, 91f / 255);
+        Player _currentTurn;
 
         private void Awake()
         {
@@ -40,13 +43,19 @@ namespace TicTacToe.Board
             }
         }
 
+        private void Start()
+        {
+            ResetBoard();
+        }
+
         void OnButtonPressed(TextButton textButton)
         {
             print($"Button {textButton.Button.name} pressed.");
 
+            SetCurrentPlayer(_currentTurn == Player.X ? Player.O : Player.X);
             bool isX = Random.value > 0.5f;
+            textButton.Text.color = isX ? _xColor : _oColor;
             textButton.Text.text = isX ? "X" : "O";
-            textButton.Text.color = isX ? new Color(6f / 255, 114f / 255, 202f / 255) : new Color(242f / 255, 84f / 255, 91f / 255);
             textButton.Button.interactable = false;
 
             var winner = CheckForWinner(out var winningLine);
@@ -62,10 +71,33 @@ namespace TicTacToe.Board
 
         public void ResetBoard()
         {
+            SetCurrentPlayer(Player.X);
             foreach (var cell in _cells)
             {
                 cell.Text.text = "";
                 cell.Button.interactable = true;
+            }
+        }
+
+        void SetCurrentPlayer(Player player)
+        {
+            _currentTurn = player;
+            var currentPlayer = GameObject.Find("Current Player").GetComponent<TextMeshProUGUI>();
+
+            if (player == Player.X)
+            {
+                currentPlayer.color = _xColor;
+                currentPlayer.text = "X";
+            }
+            else if (player == Player.O)
+            {
+                currentPlayer.color = _oColor;
+                currentPlayer.text = "O";
+            }
+            else
+            {
+                currentPlayer.color = new Color(190f / 255, 233f / 255, 232f / 255);
+                currentPlayer.text = "NO";
             }
         }
 
